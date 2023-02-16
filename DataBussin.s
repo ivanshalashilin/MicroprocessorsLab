@@ -21,7 +21,7 @@ start:
 	movwf PORTD, A
 	clrf TRISE
 	; put data in bus LATE
-	movlw 0x55
+	movlw 0x01
 	movwf LATE
 	; lower cp for 250ns
 	movlw 0xFE
@@ -29,7 +29,12 @@ start:
 	
 	call delay250
 	
+	movlw 0xFF
+	movwf PORTD, A
+	
 	setf TRISE
+	
+	call delay250
 	
 	end	main
 
