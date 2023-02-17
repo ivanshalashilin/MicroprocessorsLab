@@ -14,6 +14,7 @@
                    projectFiles="true">
       <itemPath>config.s</itemPath>
       <itemPath>DataBussin.s</itemPath>
+      <itemPath>SerialDataBussin.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
