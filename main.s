@@ -1,7 +1,7 @@
 #include <xc.inc>
 
 extrn	UART_Setup, UART_Transmit_Message  ; external subroutines
-extrn	LCD_Setup, LCD_Write_Message
+extrn	LCD_Setup, LCD_Write_Message, LCD_Send_Byte_I, LCD_Send_Byte_D
 	
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
@@ -47,17 +47,47 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movlw	myTable_l	; output message to UART
 	lfsr	2, myArray
 	call	UART_Transmit_Message
-
+	
+	
+	movlw	11000000B	;increment adress?
+	call	LCD_Send_Byte_I
+	
+	;begin delay
+	movlw 0x0F ;proxy for length of delay
+	movwf 0x20, A ; store 0x10 in FR 0x20
+	;create delay
+	movlw 0x0F
+	movwf 0x21, A ; store 0x10 in FR 0x21
+	movff 0x23, 0x22
+	call delay
+	;end delay
+	
 	movlw	myTable_l	; output message to LCD
 	addlw	0xff		; don't send the final carriage return to LCD
 	lfsr	2, myArray
 	call	LCD_Write_Message
+	
+	
+	
+	;movlw   0x01
+	;call	LCD_Send_Byte_I
 
 	goto	$		; goto current line in code
 
 	; a delay subroutine if you need one, times around loop in delay_count
-delay:	decfsz	delay_count, A	; decrement until zero
-	bra	delay
+delay: 
+	decfsz 0x20, A ; decrement until zero
+	bra delay
+	movlw 0x0F ;proxy for length of delay
+	movwf 0x20, A ; store 0x10 in FR 0x20
+	decfsz 0x21, A ; decrement until zero
+	bra delay
+	movlw 0x0F ;proxy for length of delay
+	movwf 0x20, A ; store 0x10 in FR 0x20
+	movlw 0x0F ;proxy for length of delay
+	movwf 0x21, A ; store 0x10 in FR 0x20
+	decfsz 0x22, A ; decrement until zero
+	bra delay
 	return
-
+	
 	end	rst
