@@ -20,10 +20,6 @@ setup:	bcf	CFGS	; point to Flash program memory
 	;Enable the pull-up resistors on bits 0-3 of PORTE 
 	movlw 0xff
 	movwf 0x35
-	
-	movlw 0x11
-	movwf 0x40, A	;decrementer to move to next lcd line
-
 	goto	start
 start:
 	banksel PADCFG1
@@ -86,7 +82,6 @@ start:
 	movlw 0xff
 	movwf 0x35, A
 	goto start
-
 	
 checkIfNullPrior:
 	;Check if same button pressed
@@ -96,8 +91,6 @@ checkIfNullPrior:
 	movlw 0x00
 	movwf 0x35
 	goto checkAllNums
-	
-	
 	
 	
 
@@ -133,39 +126,11 @@ checkAllNums:
 
 FoundValueOrCheckedAll:
 	;MoveASCII to LCD if not null/ if 0xFF
-	
-	;null ascii check:
 	movlw 0x0
-	cpfseq 0x33
-	goto checkLCDRow
-	goto start
-	
-checkLCDRow:	
-	decfsz 0x40, A
-	goto sendSignal
-	;ChangeRow
-	
-	movlw 11000000B 
-	call  LCD_Send_Byte_I
-	;once sent, 
-	movlw 0xff
-	movwf 0x40
-	goto sendSignal
-	
-	
-sendSignal:
-	;create delay
-	;movlw 0xFF 
-	;movwf 0x20, A 
-	;movlw 0xFF
-	;movwf 0x21, A 
-	;call delaylong
-	
-	movff  0x33, WREG
+	addwf 0x33, 0, 0
 	call  LCD_Send_Byte_D
 	
 	
-	    
 	
 	goto	start
 	
@@ -319,19 +284,6 @@ delay:
 	bra delay
 	return
 	
-	
-
-delaylong: 
-	decfsz 0x20, A ; decrement until zero
-	bra delay
-	movlw 0xFF ;proxy for length of delay
-	movwf 0x20, A ; store 0x10 in FR 0x20
-	decfsz 0x21, A ; decrement until zero
-	bra delay
-	movlw 0xFF ;proxy for length of delay
-	movwf 0x20, A ; store 0x10 in FR 0x20
-	movlw 0xFF ;proxy for length of delay
-	movwf 0x21, A ; store 0x10 in FR 0x20
-	return
-
 	end	rst
+    
+
