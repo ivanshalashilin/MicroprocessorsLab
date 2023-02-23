@@ -83,6 +83,8 @@ LCD_Send_Byte_D:	    ; Transmits byte stored in W to data reg
         call    LCD_Enable  ; Pulse enable Bit 
 	movlw	10	    ; delay 40us
 	call	LCD_delay_x4us
+	movlw	10	    ; delay 40us
+	call	LCD_delay_x4us
 	return
 
 LCD_Enable:	    ; pulse enable bit LCD_E for 500ns
