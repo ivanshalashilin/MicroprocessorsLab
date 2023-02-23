@@ -39,6 +39,11 @@ start: 	lfsr	0, myArray	; Load FSR0 with address in RAM
 	movwf	TBLPTRL, A		; load low byte to TBLPTRL
 	movlw	myTable_l	; bytes to read
 	movwf 	counter, A		; our counter register
+	
+	;set porte to only last bit as input
+	movlw	0x01
+	movwf	TRISE, A
+	
 loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	counter, A		; count down to zero
@@ -49,16 +54,18 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	call	UART_Transmit_Message
 	
 	
-	movlw	11000000B	;increment adress?
+	movlw	11000011B	;increment adress?
 	call	LCD_Send_Byte_I
 	
 	;begin delay
-	movlw 0x0F ;proxy for length of delay
+	movlw 0xFF ;proxy for length of delay
 	movwf 0x20, A ; store 0x10 in FR 0x20
-	;create delay
-	movlw 0x0F
-	movwf 0x21, A ; store 0x10 in FR 0x21
-	movff 0x23, 0x22
+	call delay
+	movlw 0xFF ;proxy for length of delay
+	movwf 0x20, A ; store 0x10 in FR 0x20
+	call delay
+	movlw 0xFF ;proxy for length of delay
+	movwf 0x20, A ; store 0x10 in FR 0x20
 	call delay
 	;end delay
 	
@@ -67,27 +74,19 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	lfsr	2, myArray
 	call	LCD_Write_Message
 	
-	
-	
-	;movlw   0x01
-	;call	LCD_Send_Byte_I
-
-	goto	$		; goto current line in code
+offcheck:
+	movlw	0x0
+	cpfseq  PORTE, A
+	call	LCD_Send_Byte_I	
+	goto	offcheck		; goto current line in code
 
 	; a delay subroutine if you need one, times around loop in delay_count
 delay: 
 	decfsz 0x20, A ; decrement until zero
 	bra delay
-	movlw 0x0F ;proxy for length of delay
-	movwf 0x20, A ; store 0x10 in FR 0x20
-	decfsz 0x21, A ; decrement until zero
-	bra delay
-	movlw 0x0F ;proxy for length of delay
-	movwf 0x20, A ; store 0x10 in FR 0x20
-	movlw 0x0F ;proxy for length of delay
-	movwf 0x21, A ; store 0x10 in FR 0x20
-	decfsz 0x22, A ; decrement until zero
-	bra delay
 	return
 	
 	end	rst
+
+
+	
