@@ -1,8 +1,9 @@
 #include <xc.inc>
 
-extrn	UART_Setup, UART_Transmit_Message  ; external uart subroutines
-extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex ; external LCD subroutines
+extrn	UART_Setup, UART_Transmit_Message, UART_Transmit_Byte  ; external subroutines
+extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex
 extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
+	
 	
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
@@ -12,13 +13,13 @@ psect	udata_bank4 ; reserve data anywhere in RAM (here at 0x400)
 myArray:    ds 0x80 ; reserve 128 bytes for message data
 
 psect	data    
-	; ******* myTable, data in programme memory, and its length *****
+;	 ******* myTable, data in programme memory, and its length *****
 myTable:
 	db	'H','e','l','l','o',' ','W','o','r','l','d','!',0x0a
 					; message, plus carriage return
 	myTable_l   EQU	13	; length of data
 	align	2
-    
+;    
 psect	code, abs	
 rst: 	org 0x0
  	goto	setup
@@ -27,8 +28,7 @@ rst: 	org 0x0
 setup:	bcf	CFGS	; point to Flash program memory  
 	bsf	EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
-	call	LCD_Setup	; setup UART
-	call	ADC_Setup	; setup ADC
+	call	ADC_Setup
 	goto	start
 	
 	; ******* Main programme ****************************************
@@ -48,19 +48,25 @@ loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 		
 	movlw	myTable_l	; output message to UART
 	lfsr	2, myArray
-	call	UART_Transmit_Message
+	;call	UART_Transmit_Message
 
 	movlw	myTable_l-1	; output message to LCD
 				; don't send the final carriage return to LCD
 	lfsr	2, myArray
 	call	LCD_Write_Message
-	
+
+	movlw 0x05
 measure_loop:
 	call	ADC_Read
-	movf	ADRESH, W, A
-	call	LCD_Write_Hex
-	movf	ADRESL, W, A
-	call	LCD_Write_Hex
+	movlw 0x30
+	addwf	ADRESH, 0
+	;movf	ADRESH, W, A
+	call	UART_Transmit_Byte
+;	call	LCD_Write_Hex
+	movlw	0x30
+	addwf	ADRESL, 0
+	;movf	ADRESL, W, A
+	call	UART_Transmit_Byte
 	goto	measure_loop		; goto current line in code
 	
 	; a delay subroutine if you need one, times around loop in delay_count
