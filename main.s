@@ -3,6 +3,7 @@
 extrn	UART_Setup, UART_Transmit_Message, UART_Transmit_Byte  ; external subroutines
 extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex
 extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
+extrn   Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
 	
 	
 psect	udata_acs   ; reserve data space in access ram
@@ -29,34 +30,10 @@ setup:	bcf	CFGS	; point to Flash program memory
 	bsf	EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
 	call	ADC_Setup
-	goto	start
+	call	Stepper_Setup
+	goto	collect_data
 	
-	; ******* Main programme ****************************************
-start: 	lfsr	0, myArray	; Load FSR0 with address in RAM	
-	movlw	low highword(myTable)	; address of data in PM
-	movwf	TBLPTRU, A		; load upper bits to TBLPTRU
-	movlw	high(myTable)	; address of data in PM
-	movwf	TBLPTRH, A		; load high byte to TBLPTRH
-	movlw	low(myTable)	; address of data in PM
-	movwf	TBLPTRL, A		; load low byte to TBLPTRL
-	movlw	myTable_l	; bytes to read
-	movwf 	counter, A		; our counter register
-loop: 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-	decfsz	counter, A		; count down to zero
-	bra	loop		; keep going until finished
-		
-	movlw	myTable_l	; output message to UART
-	lfsr	2, myArray
-	;call	UART_Transmit_Message
-
-	movlw	myTable_l-1	; output message to LCD
-				; don't send the final carriage return to LCD
-	lfsr	2, myArray
-	call	LCD_Write_Message
-
-	movlw 0x05
-measure_loop:
+collect_data:
 	call	ADC_Read
 	movlw 0x30
 	addwf	ADRESH, 0
@@ -66,9 +43,12 @@ measure_loop:
 	movlw	0x30
 	addwf	ADRESL, 0
 	;movf	ADRESL, W, A
-	call	UART_Transmit_Byte
-	goto	measure_loop		; goto current line in code
-	; goto current line in code
+	call	UART_Transmit_Byte	
+	call    Stepper_CW_Big
+	movlw   0x0F
+	movwf   delay_count
+	call    delay 
+	goto    collect_data 
 	
 	; a delay subroutine if you need one, times around loop in delay_count
 delay:	decfsz	delay_count, A	; decrement until zero
