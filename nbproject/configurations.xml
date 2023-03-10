@@ -16,8 +16,8 @@
       <itemPath>UART.s</itemPath>
       <itemPath>config.s</itemPath>
       <itemPath>main.s</itemPath>
-      <itemPath>ACD.s</itemPath>
       <itemPath>stepper.s</itemPath>
+      <itemPath>ADC.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -35,7 +35,7 @@ setup:	bcf	CFGS	; point to Flash program memory
 	
 collect_data:
 	call	ADC_Read
-	movlw 0x30
+	movlw   0x30
 	addwf	ADRESH, 0
 	;movf	ADRESH, W, A
 	call	UART_Transmit_Byte

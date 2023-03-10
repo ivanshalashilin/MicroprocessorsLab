@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  Stepper_Setup, Stepper_delay_ms, Stepper_delay_x4us
+global  Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
     
 
 psect	      udata_acs  ; named variables in access ram
@@ -11,32 +11,36 @@ Stepper_tmp:	ds 1	; reserve 1 byte for temporary use
 Stepper_counter:	ds 1	; reserve 1 byte for counting through nessage
  
 
-PSECT	udata_acs_ovr,space=1,ovrld,class=COMRAM
-      
+psect	stepper_code, class=CODE
 Stepper_Setup:
     ; set PORTD to output
     movlw 0x00
     movwf TRISD, A
+    movlw 0b00000010
+    movwf PORTD, A
+    return
     
 Stepper_CW_Big:
     movlw 0b00000011
     movwf PORTD, A
-    movlw	2		; wait 2ms
+    movlw	50		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000010
     movwf PORTD, A
-    movlw	2		; wait 2ms
+    movlw	50		; wait 2ms
     call	Stepper_delay_ms
-
+    return
+    
 Stepper_ACW_Big:
     movlw 0b00000001
     movwf PORTD, A
-    movlw	2		; wait 2ms
+    movlw	50		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000000
     movwf PORTD, A
-    movlw	2		; wait 2ms
+    movlw	50		; wait 2ms
     call	Stepper_delay_ms
+    return
 
 
 Stepper_delay_ms:		    ; delay given in ms in W
