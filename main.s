@@ -68,6 +68,7 @@ measure_loop:
 	;movf	ADRESL, W, A
 	call	UART_Transmit_Byte
 	goto	measure_loop		; goto current line in code
+	; goto current line in code
 	
 	; a delay subroutine if you need one, times around loop in delay_count
 delay:	decfsz	delay_count, A	; decrement until zero
