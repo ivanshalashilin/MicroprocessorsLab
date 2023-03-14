@@ -17,6 +17,8 @@ PWMByte: ds 1
  
 psect	servo_code, class=CODE
 Servo_Setup:
+    movlw 0x80
+    movwf TempCount
     ; set PORTD to output
     movlw 11111110
     movwf TRISD, A
@@ -25,11 +27,13 @@ Servo_Setup:
     movwf PORTD, A
     ;call 0.83ms high
     call Delay_FiveSixths
+    call AfterFiveSixthsSetup
     ;call some number of 83 highs
     ;call some number of 83 lows
     ;call the 17.83ms delay -  
     call Delay_17
     movlw  0x04
+    call Servo_Setup
     
     return
     
@@ -43,16 +47,16 @@ Delay_FiveSixths:
     return
 
 Servo_Delay_Outer:  
-    decfsz  Delay_Count_Outer_FiveSixths, A
-    bra     Servo_Delay_Inner
+    decfsz  Delay_Count_Outer_FiveSixths, A 
+    bra     Servo_Delay_Inner ; 2 cycles
     return
 
 Servo_Delay_Inner:
     decfsz  Delay_Count_Inner_FiveSixths, A	; decrement until zero
-    bra	    Servo_Delay_Inner
-    movlw   0xFF
-    movwf   Delay_Count_Inner_FiveSixths
-    bra	    Servo_Delay_Outer
+    bra	    Servo_Delay_Inner    ;2 cycles
+    movlw   0xFF ; 1 cycle
+    movwf   Delay_Count_Inner_FiveSixths ; 1 cycle
+    bra	    Servo_Delay_Outer ;2 cycles
     
 
 Delay_17: ;not important how long this is, as long as within operating frequeny.
@@ -89,33 +93,43 @@ Delay_17: ;not important how long this is, as long as within operating frequeny.
     
     
     
-PWMHighSetup:
+AfterFiveSixthsSetup:
                 movff HighCount, TempCount ;2 cycles
+BigLoop:
                 decfsz TempCount, 1, 0     ;1 cycle or 2 if final
-                bra 83CCDelayStart ;2 cycles
+                call CC83DelayStart ;2 cycles
+		movlw 0x00
+		cpfseq TempCount
+		bra BigLoop
+		;Start Low
                 movlw 0b11111110
-                movwf PWMByte
+                movwf PORTD
                 call PWMLowSetup
+		return
 
-83CCDelayStart: ;83 cycles total
+CC83DelayStart: ;83 cycles total
                 movlw 0x19 ;1 cycle
                 movwf ShortDelay ;1cycle
                 ;rounding-ones
                 movlw 0xFF ;1 cycle
                 movlw 0x00 ;1 cycle
                 ;79 cycles
-
-83CCDelay:
-
+CC83Delay:
                 decfsz ShortDelay, 1, 0       ;1 cycle or 2 if final
-                bra 83CCDelay                     ;2 cycles
+                bra CC83Delay                     ;2 cycles
                 return
 
 PWMLowSetup:
-                movff LowCount, TempCount ;2 cycles
-                decfsz TempCount, 1, 0     ;1 cycle or 2 if final
-                bra 83CCDelayStart ;2 cycles 
-                call LongLow         ;2 cycles
+		movlw 0xFF
+		subwf HighCount, 0
+		movwf TempCount
+		decfsz TempCount, 1, 0     ;1 cycle or 2 if final
+                call CC83DelayStart ;2 cycles
+		movlw 0x00
+		cpfseq TempCount
+                call CC83DelayStart ;2 cycles
+		return
+                
     
 
 

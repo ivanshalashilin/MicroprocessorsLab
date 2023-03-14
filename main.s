@@ -34,6 +34,7 @@ setup:	bcf	CFGS	; point to Flash program memory
 	call	Stepper_Setup
 	;multiply debud
 	call    Servo_Setup
+	
 	;call    MultiplyOverall
 	
 	goto	collect_data
