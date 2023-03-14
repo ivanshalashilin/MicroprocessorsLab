@@ -4,7 +4,8 @@ extrn	UART_Setup, UART_Transmit_Message, UART_Transmit_Byte  ; external subrouti
 extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex
 extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
 extrn   Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
-extrn  Multiply1616, Multiply824, MultiplyOverall
+extrn   Multiply1616, Multiply824, MultiplyOverall
+extrn   Servo_Setup
 	
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
@@ -32,7 +33,8 @@ setup:	bcf	CFGS	; point to Flash program memory
 	call	ADC_Setup
 	call	Stepper_Setup
 	;multiply debud
-	call    MultiplyOverall
+	;call    Servo_Setup
+	;call    MultiplyOverall
 	
 	goto	collect_data
 	
@@ -47,11 +49,15 @@ collect_data:
 	addwf	ADRESL, 0
 	;movf	ADRESL, W, A
 	call	UART_Transmit_Byte	
+	movlw   0x0a ;"\n"
+	call    UART_Transmit_Byte
 	call    Stepper_CW_Big
 	movlw   0x0F
 	movwf   delay_count
 	call    delay 
 	goto    collect_data 
+	
+	
 	
 	; a delay subroutine if you need one, times around loop in delay_count
 delay:	decfsz	delay_count, A	; decrement until zero

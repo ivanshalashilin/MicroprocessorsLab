@@ -9,35 +9,36 @@ Stepper_cnt_h:	ds 1	; reserve 1 byte for variable LCD_cnt_h
 Stepper_cnt_ms:	ds 1	; reserve 1 byte for ms counter
 Stepper_tmp:	ds 1	; reserve 1 byte for temporary use
 Stepper_counter:	ds 1	; reserve 1 byte for counting through nessage
- 
+
+
 
 psect	stepper_code, class=CODE
 Stepper_Setup:
     ; set PORTD to output
     movlw 0x00
-    movwf TRISD, A
+    movwf TRISE, A
     movlw 0b00000010
-    movwf PORTD, A
+    movwf PORTE, A
     return
     
 Stepper_CW_Big:
     movlw 0b00000011
-    movwf PORTD, A
+    movwf PORTE, A
     movlw	50		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000010
-    movwf PORTD, A
+    movwf PORTE, A
     movlw	50		; wait 2ms
     call	Stepper_delay_ms
     return
     
 Stepper_ACW_Big:
     movlw 0b00000001
-    movwf PORTD, A
+    movwf PORTE, A
     movlw	50		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000000
-    movwf PORTD, A
+    movwf PORTE, A
     movlw	50		; wait 2ms
     call	Stepper_delay_ms
     return
