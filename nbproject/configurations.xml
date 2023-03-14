@@ -18,7 +18,6 @@
       <itemPath>main.s</itemPath>
       <itemPath>stepper.s</itemPath>
       <itemPath>ADC.s</itemPath>
-      <itemPath>MultiplyConverter.s</itemPath>
       <itemPath>Servo.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
