@@ -6,7 +6,8 @@ extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
 extrn   Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
 ;extrn   Multiply1616, Multiply824, MultiplyOverall
 extrn   Servo_Setup
-	
+extrn Pulse5Times, HighCount, PolarisationAngle
+    
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
 delay_count:ds 1    ; reserve one byte for counter in the delay routine
@@ -34,12 +35,24 @@ setup:	bcf	CFGS	; point to Flash program memory
 	call	Stepper_Setup
 	;multiply debud
 	call    Servo_Setup
+
+ChangeAltitude:
+	call	Pulse5Times
+	call    TransmitAndRotate180
+	decfsz	HighCount
+	bra  ChangeAltitude
+	bra  setup
+
+TransmitAndRotate180:	decfsz	PolarisationAngle, A	; decrement until zero
+	bra	TransmitAndRotate1Step
+	movlw 0x64
+	movwf PolarisationAngle
+	return
+
+
+
 	
-	;call    MultiplyOverall
-	
-	goto	collect_data
-	
-collect_data:
+TransmitAndRotate1Step:
 	call	ADC_Read
 	movlw   0x30
 	addwf	ADRESH, 0
@@ -53,10 +66,11 @@ collect_data:
 	movlw   0x0a ;"\n"
 	call    UART_Transmit_Byte
 	call    Stepper_CW_Big
-	movlw   0x0F
+	movlw   0x05
 	movwf   delay_count
-	call    delay 
-	goto    collect_data 
+	call    delay
+	;bra TransmitAndRotate1Step
+	bra     TransmitAndRotate180
 	
 	
 	

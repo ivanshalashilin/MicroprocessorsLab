@@ -1,8 +1,8 @@
 #include <xc.inc>
 
-global Servo_Setup
+global Servo_Setup, Pulse5Times
 global Delay_Count_Inner_FiveSixths, Delay_Count_Outer_FiveSixths
-global ShortDelay, OverallCount, HighCount, LowCount, TempCount, PWMByte
+global ShortDelay, OverallCount, HighCount, LowCount, TempCount, NumberofPulses
     
 psect	      udata_acs   
 PlaceHolder2: ds 1
@@ -13,35 +13,54 @@ OverallCount: ds 1
 HighCount: ds 1 
 LowCount:  ds 1
 TempCount:  ds 1
-PWMByte: ds 1
+DebugCount: ds 1
+NumberofPulses: ds 1
  
 psect	servo_code, class=CODE
 Servo_Setup:
     movlw 0x80
-    movwf TempCount
+    movwf HighCount
     ; set PORTD to output
     movlw 11111110
     movwf TRISD, A
+    movlw 00000000
+    movwf PORTD, A
+    movlw 0x0A
+    movwf NumberofPulses
+    return
+
+Pulse5Times:
+    decfsz NumberofPulses
+    bra servo_loop
+    movlw 0x0A
+    movwf NumberofPulses
+    return
+    
+
+
+servo_loop:
     ;pulse high
-    movlw 00000001
+    movlw 0x01
     movwf PORTD, A
     ;call 0.83ms high
     call Delay_FiveSixths
     call AfterFiveSixthsSetup
     ;call some number of 83 highs
     ;call some number of 83 lows
-    ;call the 17.83ms delay -  
+    ;call the 17.83ms delay - 
+    movlw 0x00
+    movwf PORTD, A
     call Delay_17
     movlw  0x04
-    call Servo_Setup
     
+    ;goto debugLoop
     return
     
 Delay_FiveSixths:
     ;delay setup
-    movlw 0x34
+    movlw 0x13
     movwf Delay_Count_Outer_FiveSixths
-    movlw 0x16
+    movlw 0x50
     movwf Delay_Count_Inner_FiveSixths
     bra   Servo_Delay_Outer
     return
@@ -65,23 +84,21 @@ Delay_17: ;not important how long this is, as long as within operating frequeny.
     call Delay_FiveSixths   
     call Delay_FiveSixths   
     call Delay_FiveSixths   
-    call Delay_FiveSixths 
+    call Delay_FiveSixths  
+    call Delay_FiveSixths   
+    call Delay_FiveSixths   
+    call Delay_FiveSixths  
+    call Delay_FiveSixths   
+    call Delay_FiveSixths   
+    call Delay_FiveSixths  
+    call Delay_FiveSixths   
+    call Delay_FiveSixths
+    call Delay_FiveSixths   
+    call Delay_FiveSixths  
     call Delay_FiveSixths   
     call Delay_FiveSixths   
     call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
-    call Delay_FiveSixths   
+    call Delay_FiveSixths  
     ;same code as Delay_FiveSixths, but for 533.6 = 534 = 0x216 cycles
     movlw 0x02
     movwf Delay_Count_Outer_FiveSixths
@@ -90,8 +107,7 @@ Delay_17: ;not important how long this is, as long as within operating frequeny.
     bra   Servo_Delay_Outer
     return
     
-    
-    
+
     
 AfterFiveSixthsSetup:
                 movff HighCount, TempCount ;2 cycles
@@ -108,7 +124,7 @@ BigLoop:
 		return
 
 CC83DelayStart: ;83 cycles total
-                movlw 0x19 ;1 cycle
+                movlw 0x18 ;1 cycle
                 movwf ShortDelay ;1cycle
                 ;rounding-ones
                 movlw 0xFF ;1 cycle

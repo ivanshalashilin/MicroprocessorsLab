@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
+global  Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big, PolarisationAngle
     
 
 psect	      udata_acs  ; named variables in access ram
@@ -9,6 +9,7 @@ Stepper_cnt_h:	ds 1	; reserve 1 byte for variable LCD_cnt_h
 Stepper_cnt_ms:	ds 1	; reserve 1 byte for ms counter
 Stepper_tmp:	ds 1	; reserve 1 byte for temporary use
 Stepper_counter:	ds 1	; reserve 1 byte for counting through nessage
+PolarisationAngle:	ds 1
 
 
 
@@ -19,27 +20,29 @@ Stepper_Setup:
     movwf TRISE, A
     movlw 0b00000010
     movwf PORTE, A
+    movlw 0x64
+    movwf PolarisationAngle
     return
     
 Stepper_CW_Big:
     movlw 0b00000011
     movwf PORTE, A
-    movlw	50		; wait 2ms
+    movlw	2		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000010
     movwf PORTE, A
-    movlw	50		; wait 2ms
+    movlw	2		; wait 2ms
     call	Stepper_delay_ms
     return
     
 Stepper_ACW_Big:
     movlw 0b00000001
     movwf PORTE, A
-    movlw	50		; wait 2ms
+    movlw	2		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000000
     movwf PORTE, A
-    movlw	50		; wait 2ms
+    movlw	2		; wait 2ms
     call	Stepper_delay_ms
     return
 
