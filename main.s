@@ -4,9 +4,10 @@ extrn	UART_Setup, UART_Transmit_Message, UART_Transmit_Byte  ; external subrouti
 extrn	LCD_Setup, LCD_Write_Message, LCD_Write_Hex
 extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
 extrn   Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
-;extrn   Multiply1616, Multiply824, MultiplyOverall
+extrn   GetDecimalDigits
 extrn   Servo_Setup
-extrn Pulse5Times, HighCount, PolarisationAngle
+extrn   Pulse5Times, HighCount, PolarisationAngle
+extrn   OUT3, OUT2, OUT1, OUT0
     
 psect	udata_acs   ; reserve data space in access ram
 counter:    ds 1    ; reserve one byte for a counter variable
@@ -54,17 +55,50 @@ TransmitAndRotate180:	decfsz	PolarisationAngle, A	; decrement until zero
 	
 TransmitAndRotate1Step:
 	call	ADC_Read
-	movlw   0x30
-	addwf	ADRESH, 0
+	;movlw   0x30
+	;addwf	ADRESH, 0
 	;movf	ADRESH, W, A
-	call	UART_Transmit_Byte
+	;send byte to be converted. digits stored in OUT3,OUT2,OUT1,OUT0
+	call    GetDecimalDigits
+	
+	movlw   0x30
+	addwf   OUT3, 0
+	call    UART_Transmit_Byte
+	
+	movlw   0x30
+	addwf   OUT2, 0
+	call    UART_Transmit_Byte  
+	
+	movlw   0x30
+	addwf   OUT1, 0
+	call    UART_Transmit_Byte  
+	
+	movlw   0x30
+	addwf   OUT0, 0
+	call    UART_Transmit_Byte  
+	
+	
+	
+	movlw   0x2C ; comma
+	call    UART_Transmit_Byte
+	
+	
+	;call	UART_Transmit_Byte
 ;	call	LCD_Write_Hex
-	movlw	0x30
-	addwf	ADRESL, 0
+	;movlw	0x30
+	;addwf	ADRESL, 0
 	;movf	ADRESL, W, A
-	call	UART_Transmit_Byte	
+	;call	UART_Transmit_Byte
+	
+	
 	movlw   0x0a ;"\n"
 	call    UART_Transmit_Byte
+	
+	
+	;movlw   0x0A ;"\n"
+	;call    UART_Transmit_Byte
+	
+	
 	call    Stepper_CW_Big
 	movlw   0x05
 	movwf   delay_count

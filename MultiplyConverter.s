@@ -1,6 +1,6 @@
 #include <xc.inc>
     
-global Multiply1616, Multiply824, MultiplyOverall
+global GetDecimalDigits
 global RES3, RES2, RES1, RES0, RES38, RES28, RES18, RES08
 global OUT3, OUT2, OUT1, OUT0
 psect	      udata_acs  ; named variables in access ram
@@ -112,11 +112,9 @@ Multiply824:
     
     return
 
-MultiplyOverall:
-    MOVLW 0x04
-    MOVWF ARG1H
-    MOVLW 0xD2
-    MOVWF ARG1L
+GetDecimalDigits:
+    MOVFF ADRESH, ARG1H
+    MOVFF ADRESL, ARG1L
     
     MOVLW 0x41
     MOVWF ARG2H
