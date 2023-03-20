@@ -19,7 +19,7 @@ LongDelayCount: ds 1
  
 psect	servo_code, class=CODE
 Servo_Setup:
-    movlw 0x80
+    movlw 0x20
     movwf HighCount
     ; set PORTD to output
     movlw 11111110
@@ -123,7 +123,8 @@ LongDelay17Loop:
 AfterFiveSixthsSetup:
                 movff HighCount, TempCount ;2 cycles
 BigLoop:
-                decfsz TempCount, 1, 0     ;1 cycle or 2 if final
+		;decf   TempCount, 1, 0
+		decfsz TempCount, 1, 0     ;1 cycle or 2 if final
                 call CC83DelayStart ;2 cycles
 		movlw 0x00
 		cpfseq TempCount
@@ -135,11 +136,12 @@ BigLoop:
 		return
 
 CC83DelayStart: ;83 cycles total
-                movlw 0x18 ;1 cycle
+                movlw 0x6C ;1 cycle
                 movwf ShortDelay ;1cycle
                 ;rounding-ones
-                movlw 0xFF ;1 cycle
-                movlw 0x00 ;1 cycle
+		movlw 0x00
+		movlw 0xFF
+
                 ;79 cycles
 CC83Delay:
                 decfsz ShortDelay, 1, 0       ;1 cycle or 2 if final

@@ -66,6 +66,7 @@ TransmitAndRotate180CW:
 	
 	movlw 0x00
 	movwf CWorACW
+	
 	goto ChangeAltitudeAfter180
 	
 TransmitAndRotate180ACW:
