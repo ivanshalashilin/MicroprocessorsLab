@@ -1,7 +1,7 @@
 #include <xc.inc>
 
-global Servo_Setup, Pulse5Times
-global Delay_Count_Inner_FiveSixths, Delay_Count_Outer_FiveSixths
+global Servo_Setup, Pulse5Times, LongDelay17, Delay_17
+global Delay_Count_Inner_FiveSixths, Delay_Count_Outer_FiveSixths, Delay_FiveSixths
 global ShortDelay, OverallCount, HighCount, LowCount, TempCount, NumberofPulses
     
 psect	      udata_acs   
@@ -15,6 +15,7 @@ LowCount:  ds 1
 TempCount:  ds 1
 DebugCount: ds 1
 NumberofPulses: ds 1
+LongDelayCount: ds 1
  
 psect	servo_code, class=CODE
 Servo_Setup:
@@ -32,7 +33,7 @@ Servo_Setup:
 Pulse5Times:
     decfsz NumberofPulses
     bra servo_loop
-    movlw 0x0A
+    movlw 0x32
     movwf NumberofPulses
     return
     
@@ -106,6 +107,16 @@ Delay_17: ;not important how long this is, as long as within operating frequeny.
     movwf Delay_Count_Inner_FiveSixths
     bra   Servo_Delay_Outer
     return
+    
+LongDelay17:
+    movlw 0x50
+    movwf LongDelayCount
+LongDelay17Loop:
+    call Delay_17
+    decfsz LongDelayCount
+    bra LongDelay17Loop
+    return
+    
     
 
     
