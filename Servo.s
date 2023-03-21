@@ -20,13 +20,14 @@ LongDelayCount: ds 1
 psect	servo_code, class=CODE
 Servo_Setup:
     movlw 0x20
+;    movlw 0x00
     movwf HighCount
     ; set PORTD to output
     movlw 11111110
     movwf TRISD, A
     movlw 00000000
     movwf PORTD, A
-    movlw 0x0A
+    movlw 0x32
     movwf NumberofPulses
     return
 
@@ -34,6 +35,7 @@ Pulse5Times:
     decfsz NumberofPulses
     bra servo_loop
     movlw 0x32
+;    movlw  0xFF
     movwf NumberofPulses
     return
     
@@ -55,13 +57,13 @@ servo_loop:
     movlw  0x04
     
     ;goto debugLoop
-    return
+    bra Pulse5Times
     
 Delay_FiveSixths:
     ;delay setup
     movlw 0x13
     movwf Delay_Count_Outer_FiveSixths
-    movlw 0x50
+    movlw 0xC0
     movwf Delay_Count_Inner_FiveSixths
     bra   Servo_Delay_Outer
     return
@@ -122,8 +124,9 @@ LongDelay17Loop:
     
 AfterFiveSixthsSetup:
                 movff HighCount, TempCount ;2 cycles
+
 BigLoop:
-		;decf   TempCount, 1, 0
+    
 		decfsz TempCount, 1, 0     ;1 cycle or 2 if final
                 call CC83DelayStart ;2 cycles
 		movlw 0x00
@@ -136,7 +139,7 @@ BigLoop:
 		return
 
 CC83DelayStart: ;83 cycles total
-                movlw 0x6C ;1 cycle
+                movlw 0x6B ;1 cycle
                 movwf ShortDelay ;1cycle
                 ;rounding-ones
 		movlw 0x00
@@ -149,7 +152,7 @@ CC83Delay:
                 return
 
 PWMLowSetup:
-		movlw 0xFF
+		movlw 0x40
 		subwf HighCount, 0
 		movwf TempCount
 		decfsz TempCount, 1, 0     ;1 cycle or 2 if final

@@ -6,7 +6,7 @@ extrn	ADC_Setup, ADC_Read		   ; external ADC subroutines
 extrn   Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big
 extrn   GetDecimalDigits, Delay_FiveSixths, LongDelay17, Delay_17
 extrn   Servo_Setup
-extrn   Pulse5Times, HighCount, PolarisationAngle
+extrn   Pulse5Times, HighCount, PolarisationAngle, LowCount
 extrn   OUT3, OUT2, OUT1, OUT0
 global  CWorACW
     
@@ -43,15 +43,20 @@ setup:	bcf	CFGS	; point to Flash program memory
 
 ChangeAltitude:
 	call	Pulse5Times
-	call	LongDelay17
+	call	Delay_17
+
+	;call	LongDelay17
+	;call	LongDelay17
 	;movlw   0x0a ;"\n"
 	;call    UART_Transmit_Byte
 	tstfsz	CWorACW
-	goto    TransmitAndRotate180CW
+	goto    TransmitAndRotate180CW	
 	goto	TransmitAndRotate180ACW
 ChangeAltitudeAfter180:
-	
-	decfsz	HighCount
+;	incf HighCount
+;	movlw 0x40
+;	cpfseq HighCount
+	;decfsz	HighCount
 	bra  ChangeAltitude
 	bra  setup
 
@@ -67,6 +72,8 @@ TransmitAndRotate180CW:
 	movlw 0x00
 	movwf CWorACW
 	
+	call Delay_17
+	
 	goto ChangeAltitudeAfter180
 	
 TransmitAndRotate180ACW:
@@ -80,6 +87,8 @@ TransmitAndRotate180ACW:
 	
 	movlw 0x01
 	movwf CWorACW
+	
+	call Delay_17
 	
 	goto ChangeAltitudeAfter180
 

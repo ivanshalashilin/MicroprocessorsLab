@@ -27,22 +27,22 @@ Stepper_Setup:
 Stepper_CW_Big:
     movlw 0b00000011
     movwf PORTE, A
-    movlw	2		; wait 2ms
+    movlw	0xFF		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000010
     movwf PORTE, A
-    movlw	2		; wait 2ms
+    movlw	0xFF		; wait 2ms
     call	Stepper_delay_ms
     return
     
 Stepper_ACW_Big:
     movlw 0b00000001
     movwf PORTE, A
-    movlw	2		; wait 2ms
+    movlw	0xFF		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000000
     movwf PORTE, A
-    movlw	2		; wait 2ms
+    movlw	0xFF		; wait 2ms
     call	Stepper_delay_ms
     return
 
