@@ -1,29 +1,3 @@
-<<<<<<< HEAD
-	#include <xc.inc>
-
-psect	code, abs
-	
-main:
-	org	0x0
-	goto	start
-
-	org	0x100		    ; Main code starts here at address 0x100
-start:
-	movlw 	0x0
-	movwf	TRISB, A	    ; Port C all outputs
-	bra 	test
-loop:
-	movff 	0x06, PORTB
-	incf 	0x06, W, A
-test:
-	movwf	0x06, A	    ; Test for end of loop condition
-	movlw 	0x63
-	cpfsgt 	0x06, A
-	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start
-
-	end	main
-=======
 #include <xc.inc>
 
 extrn	UART_Setup, UART_Transmit_Message, UART_Transmit_Byte  ; external subroutines
@@ -64,88 +38,43 @@ rst: 	org 0x0
 setup:	bcf	CFGS	; point to Flash program memory  
 	bsf	EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
+	
+
+;	movlw  0x30
+;	call UART_Transmit_Byte
+;	movlw 0x0A
+;	call UART_Transmit_Byte
+
+	
 	call	ADC_Setup
 	call	Stepper_Setup
-	movlw 0x00
-	movwf CWorACW
+	movlw	0x00
+	movwf	CWorACW
 	;multiply debud
 	call    Servo_Setup
 
 ChangeAltitude:
 	;call	Pulse5Times
 	;call	Delay_17
-
 	;call	LongDelay17
 	;call	LongDelay17
-	movlw   0x0a ;"\n"
+;	movlw   0x0a ;"\n"
 	
-	call    UART_Transmit_Byte
+;	call    UART_Transmit_Byte
 	
-	tstfsz	CWorACW
-	goto    TransmitAndRotate180CW	
-	goto	TransmitAndRotate180ACW
-ChangeAltitudeAfter180:
+	;tstfsz	CWorACW
+	;goto    TransmitAndRotate180CW	
+	goto	Transmit1Step
+ChangeAltitudeAfter1Step:
 ;	incf HighCount
 ;	movlw 0x40
 ;	cpfseq HighCount
 	decfsz	HighCount
 	bra  ChangeAltitude
 	bra  setup
-
-TransmitAndRotate180CW:
-	decfsz	PolarisationAngle, A	; decrement until zero
-	bra	TransmitAndRotate1StepCW
 	
+Transmit1Step:
 	
-	
-;	movlw 0x65
-	movlw 0xC9
-	movwf PolarisationAngle
-	
-	movlw 0x00
-	movwf CWorACW
-	
-	;call Delay_17
-	;break up cw-acw signals  
-	
-	movlw 0x30
-	call  UART_Transmit_Byte  
-	movlw 0x0A
-	call  UART_Transmit_Byte  
-	
-	goto ChangeAltitudeAfter180
-	
-TransmitAndRotate180ACW:
-	decfsz	PolarisationAngle, A	; decrement until zero
-	bra	TransmitAndRotate1StepACW
-	
-	
-	
-;	movlw 0x65
-	movlw 0xC9
-	movwf PolarisationAngle
-	
-	movlw 0x01
-	movwf CWorACW
-	
-	call Delay_17
-	;break up cw-acw signals
-	movlw 0x30
-	call  UART_Transmit_Byte  
-	movlw 0x0A
-	call  UART_Transmit_Byte  
-	
-	goto ChangeAltitudeAfter180
-
-
-
-	
-TransmitAndRotate1StepCW:
-	
-	;movlw   0x30
-	;addwf	ADRESH, 0
-	;movf	ADRESH, W, A
-	;send byte to be converted. digits stored in OUT3,OUT2,OUT1,OUT0
 	
 	;call Delay_17
 	
@@ -171,62 +100,13 @@ TransmitAndRotate1StepCW:
 	
 	movlw   0x0a ;"\n"
 	call    UART_Transmit_Byte
-	;movlw   0x2C ; comma
-	;call    UART_Transmit_Byte
 	
-	
-	;call	UART_Transmit_Byte
-;	call	LCD_Write_Hex
-	;movlw	0x30
-	;addwf	ADRESL, 0
-	;movf	ADRESL, W, A
-	;call	UART_Transmit_Byte
-	
-	
-	;movlw   0x0A ;"\n"
-	;call    UART_Transmit_Byte
-	
-	
-	call    Stepper_CW_Big
 	movlw   0x05
 	movwf   delay_count
 	call    delay
-	;bra TransmitAndRotate1StepCW
-	goto     TransmitAndRotate180CW
+	
+	goto     ChangeAltitudeAfter1Step
 
-TransmitAndRotate1StepACW:
-	call	ADC_Read
-	
-	;call Delay_17
-	
-	call FindConvergedSignal
-	
-	movlw   0x30
-	addwf   OUT3, 0
-	call    UART_Transmit_Byte
-	
-	movlw   0x30
-	addwf   OUT2, 0
-	call    UART_Transmit_Byte  
-	
-	movlw   0x30
-	addwf   OUT1, 0
-	call    UART_Transmit_Byte  
-	
-	movlw   0x30
-	addwf   OUT0, 0
-	call    UART_Transmit_Byte  
-	
-	
-	movlw   0x0a ;"\n"
-	call    UART_Transmit_Byte
-	
-	call    Stepper_ACW_Big
-	movlw   0x05
-	movwf   delay_count
-	call    delay
-	;bra TransmitAndRotate1StepCW
-	goto     TransmitAndRotate180ACW
 	
 FindConvergedSignal:
     ;get initial intensity and store
@@ -259,4 +139,3 @@ delay:	decfsz	delay_count, A	; decrement until zero
 	return
 
 	end	rst
->>>>>>> ServoStepperMeasurements

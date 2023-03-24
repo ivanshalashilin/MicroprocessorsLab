@@ -12,7 +12,13 @@
             <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
+<<<<<<< HEAD
             <sourceRootList/>
+=======
+            <sourceRootList>
+                <sourceRootElem>.</sourceRootElem>
+            </sourceRootList>
+>>>>>>> ServoStepperMeasurements
             <confList>
                 <confElem>
                     <name>default</name>
