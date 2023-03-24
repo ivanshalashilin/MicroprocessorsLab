@@ -1,6 +1,6 @@
 #include <xc.inc>
 
-global  Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big, PolarisationAngle
+global  Stepper_Setup, Stepper_CW_Big, Stepper_ACW_Big, PolarisationAngle, Stepper_delay_ms
     
 
 psect	      udata_acs  ; named variables in access ram
@@ -16,33 +16,34 @@ PolarisationAngle:	ds 1
 psect	stepper_code, class=CODE
 Stepper_Setup:
     ; set PORTD to output
-    movlw 0x00
+    movlw 0x40
     movwf TRISE, A
     movlw 0b00000010
     movwf PORTE, A
-    movlw 0x64
+;    movlw 0x65
+    movlw 0xC9
     movwf PolarisationAngle
     return
     
 Stepper_CW_Big:
     movlw 0b00000011
     movwf PORTE, A
-    movlw	0xFF		; wait 2ms
+    movlw	0x10		; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000010
     movwf PORTE, A
-    movlw	0xFF		; wait 2ms
+    movlw	0x10		; wait 2ms
     call	Stepper_delay_ms
     return
     
 Stepper_ACW_Big:
     movlw 0b00000001
     movwf PORTE, A
-    movlw	0xFF		; wait 2ms
+    movlw	0x10	; wait 2ms
     call	Stepper_delay_ms
     movlw 0b00000000
     movwf PORTE, A
-    movlw	0xFF		; wait 2ms
+    movlw	0x10		; wait 2ms
     call	Stepper_delay_ms
     return
 

@@ -15,11 +15,11 @@
       <itemPath>LCD.S</itemPath>
       <itemPath>UART.s</itemPath>
       <itemPath>config.s</itemPath>
-      <itemPath>main.s</itemPath>
       <itemPath>stepper.s</itemPath>
       <itemPath>ADC.s</itemPath>
       <itemPath>Servo.s</itemPath>
       <itemPath>MultiplyConverter.s</itemPath>
+      <itemPath>main.s</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
